@@ -1,0 +1,13 @@
+<?php
+include("../../con73/con37.php");
+include("../attachment/session.php");
+
+$delete_record=$_GET['id'];
+
+$query="delete from school_library_book where id='$delete_record' AND session_value='$session1'";
+
+if(mysqli_query($conn73,$query)){
+
+	echo "<script>window.open('recycle_library_book_list.php','_self')</script>";
+}
+?>

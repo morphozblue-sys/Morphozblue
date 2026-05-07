@@ -1,0 +1,192 @@
+<?php include("../attachment/session.php");
+$student_class=$_POST['student_class'];
+$student_class_section=$_POST['student_class_section'];
+?>
+<div id="printTable">
+<table class="table" cellpadding="5px;" cellspacing="0" style="width:100%">
+<td><tr><center><b style="color:red;font-size:20px;">Class : <?php echo $student_class.'  ,  '; ?>Section : <?php echo $student_class_section; ?></b></center></tr></td>    
+<?php
+
+$schl_query="select school_info_school_name,school_info_dise_code,school_info_school_code,school_info_school_city from school_info_general";
+$schl_result=mysqli_query($conn73,$schl_query)or die(mysqli_error($conn73));
+while($schl_row=mysqli_fetch_assoc($schl_result)){  
+$school_info_school_name=$schl_row['school_info_school_name'];
+$school_info_dise_code=$schl_row['school_info_dise_code'];
+$school_info_school_code=$schl_row['school_info_school_code'];
+$school_info_school_city=$schl_row['school_info_school_city'];
+}
+
+$student_class=$_POST['student_class'];
+if($student_class!=''){
+	$condition=" and student_class='$student_class'";
+}else{
+	$condition="";
+}
+$student_class_section=$_POST['student_class_section'];
+if($student_class_section!='All'){
+	$condition1=" and student_class_section='$student_class_section'";
+}else{
+	$condition1="";
+}
+$student_status=$_POST['student_status'];
+if($student_status!='All'){
+	$condition2=" and student_status='$student_status'";
+	if($student_status=='Active'){
+	$condition02=" and fee_status='Active'";
+	}else{
+	$condition02="";
+	}
+}else{
+	$condition2="";
+	$condition02="";
+}
+$selected_month=$_POST['selected_month'];
+$sel_month_count=count($selected_month);
+
+$head_value=$_POST['head_value'];
+if($head_value!='yearly_head'){
+    $head_condition=" and fee_code!='$head_value'";
+}else{
+    $head_condition="";
+}
+$student_note=$_POST['student_note'];
+
+$late_fee=$_POST['late_fee'];
+
+$que0001="select * from school_info_monthly_fees where fees_type_name!='' and session_value='$session1'$filter37 ORDER BY s_no";
+$run0001=mysqli_query($conn73,$que0001);
+$sno0001=0;
+while($row0001=mysqli_fetch_assoc($run0001)){
+$fees_code = $row0001['fees_code'];
+
+$penalty_day_monthly[$fees_code] = $row0001['penalty_day_monthly'];
+
+$dues_last_date[$fees_code] = $row0001['dues_last_date'];
+$penalty_percent_rupees_amount[$fees_code] = $row0001['penalty_percent_rupees_amount'];
+$penalty_method[$fees_code] = $row0001['penalty_method'];
+$sno0001++;
+}
+
+$que01="select * from school_info_fee_types where fee_type!='' and session_value='$session1'$head_condition$filter37";
+$run01=mysqli_query($conn73,$que01);
+$count=0;
+while($row01=mysqli_fetch_assoc($run01)){
+$fee_code = $row01['fee_code'];
+$fee_balance[$count]="student_".$fee_code."_balance_month";
+$count++;
+}
+$ins_name=array("01"=>"January", "02"=>"February", "03"=>"March", "04"=>"April", "05"=>"May", "06"=>"June", "07"=>"July", "08"=>"August", "09"=>"September", "10"=>"October", "11"=>"November", "12"=>"December");
+
+$que="select student_name,student_father_name,student_class,student_class_section,student_roll_no,school_roll_no,student_admission_number,student_sms_contact_number from student_admission_info where session_value='$session1'$condition$condition1$condition2$filter37";
+$run=mysqli_query($conn73,$que);
+$serial_no=0;
+while($row=mysqli_fetch_assoc($run)){
+$student_name=$row['student_name'];
+$student_father_name=$row['student_father_name'];
+$student_class1=$row['student_class'];
+$student_class_section1=$row['student_class_section'];
+$student_roll_no=$row['student_roll_no'];
+$school_roll_no=$row['school_roll_no'];
+$student_admission_number=$row['student_admission_number'];
+$student_sms_contact_number=$row['student_sms_contact_number'];
+
+	
+$query00="select * from common_fees_student_fee where student_roll_no='$student_roll_no' and session_value='$session1'$condition02";
+$result00=mysqli_query($conn73,$query00);
+$installment_amount=0;
+$transport_fee00=0;
+$fees_type_name='';
+$comma='';
+$late_fee00=0;
+while($row00=mysqli_fetch_assoc($result00)){
+if($head_value=='yearly_head'){
+    $student_transport_fee_balance=$row00['student_transport_fee_balance'];
+    $transport_fee00=$transport_fee00+$student_transport_fee_balance;
+}else{
+    for($c=0;$c<$sel_month_count;$c++){
+    $transport_fee00=$transport_fee00+$row00['student_'.$head_value.'_balance_month'.$selected_month[$c]];
+    }
+}
+$student_previous_year_fee_balance=$row00['student_previous_year_fee_balance'];
+//$installment_amount=$installment_amount+$student_previous_year_fee_balance;
+
+for($a=0;$a<$sel_month_count;$a++){
+    for($b=0;$b<$count;$b++){
+        $installment_amount=$installment_amount+$row00[$fee_balance[$b].$selected_month[$a]];
+    }
+    $fees_type_name=$fees_type_name.$comma.$ins_name[$selected_month[$a]];
+    $comma=', ';
+    
+if(date('Y-m-d') > $dues_last_date[$selected_month[$a]] && $dues_last_date[$selected_month[$a]]!='0000-00-00' && $late_fee=='Yes'){
+if($penalty_day_monthly[$selected_month[$a]]=='Day'){
+
+$current_date=date_create(date('Y-m-d'));
+$dues_last_date11=date_create($dues_last_date[$selected_month[$a]]);
+$diff=date_diff($current_date,$dues_last_date11);
+$clear_difference=$diff->format("%a");
+
+if($penalty_method[$selected_month[$a]]=='%'){
+$late_fee00=$late_fee00+(($installment_amount*$clear_difference*$penalty_percent_rupees_amount[$selected_month[$a]])/100);
+}elseif($penalty_method[$selected_month[$a]]=='Rs'){
+$late_fee00=$late_fee00+($penalty_percent_rupees_amount[$selected_month[$a]]*$clear_difference);
+}
+}else{
+if($penalty_method[$selected_month[$a]]=='%'){
+$late_fee00=$late_fee00+(($installment_amount*$penalty_percent_rupees_amount[$selected_month[$a]])/100);
+}elseif($penalty_method[$selected_month[$a]]=='Rs'){
+$late_fee00=$late_fee00+$penalty_percent_rupees_amount[$selected_month[$a]];
+}
+}
+}else{
+$late_fee00=$late_fee00;
+}
+    
+}
+
+if($installment_amount>0 || $transport_fee00>0){
+$serial_no++;
+?>
+<tr>
+<?php  if($_SESSION['database_name']=="simptczo_vidyasagarschoolnaxalbari"){ ?>    
+<td><span style="font-size:20px;font-weight:bold"><center><b><?php echo $school_info_school_name.", $school_info_school_city"; ?></b></center></span></td>
+<?php } else{ ?>
+<td><span style="font-size:20px;font-weight:bold"><center><b><?php echo $school_info_school_name; ?></b></center></span></td>
+<?php } ?>
+</tr>
+<tr>
+    <td> <b>Date : </b><?php echo date('d-m-Y'); ?></td>
+</tr>
+<tr>
+<td><span style="font-size:18px;">Name :-  <?php echo $student_name.' / '.$student_father_name; ?></span><span style="font-size:18px;float:right;">Class :-  <?php echo $student_class1.' ('.$student_class_section1.')'; ?></span></td>
+</tr>
+
+<tr>
+<td><span style="font-size:18px;">Admission No :-  <?php echo $student_admission_number; ?></span><span style="font-size:18px;float:right;">Roll No :-  <?php echo $school_roll_no; ?></span></td>
+</tr>
+<tr>
+<td><span style="font-size:18px;font-weight:bold;color:red;">Dues Amount :-  <?php echo $installment_amount; ?> /-</span><span style="font-size:18px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;( <?php echo $fees_type_name; ?> )</span></td>
+</tr>
+<?php if($_SESSION['database_name']!='simpthqt_kidzworldschoolrewa') {  ?>
+<tr>
+<td><span style="font-size:18px;font-weight:bold;color:red;">Transport Amount :-  <?php echo $transport_fee00; ?> /-</td>
+</tr> 
+<?php } ?>
+<tr>
+<td><span style="font-size:18px;font-weight:bold;color:red;">Previous year Amount :-  <?php echo $student_previous_year_fee_balance; ?> /-</td>
+</tr>
+<?php if($late_fee=='Yes') {  ?>
+<tr>
+<td><span style="font-size:18px;font-weight:bold;color:red;">Late Fee Amount :-  <?php echo $late_fee00; ?> /-</td>
+</tr> 
+<?php } ?>
+<?php if($student_note!=''){ ?>
+<tr>
+<td><span style="font-size:18px;font-weight:bold;">Dues Note :  </span><?php echo $student_note; ?></td>
+</tr>
+<?php } ?>
+<tr>
+<td><hr/></td>
+</tr>
+<?php } } } ?>
+</table>
+</div>

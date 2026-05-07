@@ -1,0 +1,2 @@
+ALTER TABLE `employee_info` ADD `emp_experience_latter` MEDIUMBLOB NOT NULL AFTER `filter3`, ADD `emp_degree` MEDIUMBLOB NOT NULL AFTER `emp_experience_latter`, ADD `emp_id_proof` MEDIUMBLOB NOT NULL AFTER `emp_degree`, ADD `emp_other_document1` MEDIUMBLOB NOT NULL AFTER `emp_id_proof`, ADD `emp_other_document2` MEDIUMBLOB NOT NULL AFTER `emp_other_document1`;
+ALTER TABLE `employee_info` CHANGE `emp_photo` `emp_photo` MEDIUMBLOB NOT NULL;
