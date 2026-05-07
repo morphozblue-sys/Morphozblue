@@ -1,0 +1,471 @@
+# Complete Git + GitHub Setup Notes (Mac M4)
+
+## Project Structure Example
+
+```text
+htdocs/
+├── D/
+│   ├── Demo/
+│   └── school_software_v1/
+```
+
+* `htdocs` = XAMPP root folder
+* `D` = parent folder containing both projects
+* `Demo` and `school_software_v1` = actual projects
+
+---
+
+# 1. Open Terminal on Mac
+
+### Method 1
+
+Press:
+
+```text
+Command + Space
+```
+
+Type:
+
+```text
+Terminal
+```
+
+Press Enter.
+
+---
+
+# 2. Go to Project Folder
+
+## Upload only Demo project
+
+```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/Demo
+```
+
+## Upload only school_software_v1 project
+
+```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/school_software_v1
+```
+
+## Upload both projects together
+
+```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/D
+```
+
+---
+
+# 3. Check Current Folder
+
+```bash
+pwd
+```
+
+---
+
+# 4. Check Files
+
+```bash
+ls
+```
+
+---
+
+# 5. Remove Old Git History
+
+(Removes previous Git history and large SQL file history)
+
+```bash
+rm -rf .git
+```
+
+---
+
+# 6. Initialize New Git Repository
+
+```bash
+git init
+```
+
+---
+
+# 7. Create .gitignore File
+
+(Prevents SQL files and Mac files from uploading)
+
+```bash
+echo "u851190831_eps.sql" > .gitignore
+```
+
+Add Mac system files:
+
+```bash
+echo ".DS_Store" >> .gitignore
+```
+
+View .gitignore:
+
+```bash
+cat .gitignore
+```
+
+---
+
+# 8. Add Files to Git
+
+```bash
+git add .
+```
+
+---
+
+# 9. Check Git Status
+
+```bash
+git status
+```
+
+---
+
+# 10. Commit Files
+
+```bash
+git commit -m "Fresh upload"
+```
+
+---
+
+# 11. Rename Branch to main
+
+```bash
+git branch -M main
+```
+
+---
+
+# 12. Connect GitHub Repository
+
+```bash
+git remote add origin git@github.com:morphozblue-sys/Morphozblue.git
+```
+
+Check remote:
+
+```bash
+git remote -v
+```
+
+---
+
+# 13. Push Project to GitHub
+
+## Normal push
+
+```bash
+git push -u origin main
+```
+
+## Force push
+
+(Overwrites GitHub repo with local files)
+
+```bash
+git push -u origin main --force
+```
+
+---
+
+# 14. SSH Key Setup
+
+## Generate SSH key
+
+```bash
+ssh-keygen -t ed25519 -C "morphozblue@gmail.com"
+```
+
+Press Enter 3 times.
+
+---
+
+## Start SSH agent
+
+```bash
+eval "$(ssh-agent -s)"
+```
+
+---
+
+## Add SSH key
+
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+
+---
+
+## Show SSH public key
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy output and add here:
+
+GitHub → Settings → SSH and GPG keys
+
+---
+
+## Test SSH connection
+
+```bash
+ssh -T git@github.com
+```
+
+Expected output:
+
+```text
+Hi username! You've successfully authenticated
+```
+
+---
+
+# 15. Fix Large SQL File Error
+
+## Remove SQL file from Git tracking
+
+```bash
+git rm --cached u851190831_eps.sql
+```
+
+---
+
+## Ignore SQL file permanently
+
+```bash
+echo "u851190831_eps.sql" >> .gitignore
+```
+
+---
+
+## Commit changes
+
+```bash
+git add .
+git commit -m "Ignore SQL backup file"
+```
+
+---
+
+# 16. Create Folder in Git
+
+Git does not track empty folders.
+
+## Create folder
+
+```bash
+mkdir uploads
+```
+
+## Add placeholder file
+
+```bash
+touch uploads/.gitkeep
+```
+
+## Commit
+
+```bash
+git add .
+git commit -m "Added uploads folder"
+git push
+```
+
+---
+
+# 17. Delete File From Git
+
+## Delete file locally
+
+```bash
+rm filename
+```
+
+Example:
+
+```bash
+rm main.php
+```
+
+---
+
+## Commit deletion
+
+```bash
+git add .
+git commit -m "Deleted file"
+git push
+```
+
+---
+
+# 18. Delete Folder
+
+```bash
+rm -rf foldername
+```
+
+Example:
+
+```bash
+rm -rf uploads
+```
+
+---
+
+# 19. Remove Git Submodule Issue
+
+If GitHub shows a folder with an arrow icon, it means it became a submodule.
+
+## Remove submodule tracking
+
+```bash
+git rm --cached Demo
+```
+
+---
+
+## Remove submodule metadata
+
+```bash
+rm -rf .git/modules/Demo
+```
+
+---
+
+## Remove .gitmodules file
+
+```bash
+rm -f .gitmodules
+```
+
+---
+
+## Add folder again as normal folder
+
+```bash
+git add Demo
+```
+
+---
+
+## Commit changes
+
+```bash
+git commit -m "Convert Demo from submodule to normal folder"
+```
+
+---
+
+## Push changes
+
+```bash
+git push origin main --force
+```
+
+---
+
+# 20. Pull Latest Changes
+
+```bash
+git pull origin main --no-rebase --allow-unrelated-histories
+```
+
+---
+
+# 21. Open Current Folder in Finder
+
+```bash
+open .
+```
+
+---
+
+# 22. Open VS Code in Current Folder
+
+```bash
+code .
+```
+
+---
+
+# 23. Delete Entire GitHub Repository
+
+1. Open repository on GitHub
+2. Go to Settings
+3. Scroll to Danger Zone
+4. Click:
+
+```text
+Delete this repository
+```
+
+5. Type repository name to confirm.
+
+---
+
+# 24. Common Git Commands
+
+## Check status
+
+```bash
+git status
+```
+
+## Add all files
+
+```bash
+git add .
+```
+
+## Commit changes
+
+```bash
+git commit -m "message"
+```
+
+## Push changes
+
+```bash
+git push
+```
+
+## Pull changes
+
+```bash
+git pull
+```
+
+## Check branches
+
+```bash
+git branch
+```
+
+## Check remotes
+
+```bash
+git remote -v
+```
+
+---
+
+# 25. Important Notes
+
+* Run Git commands from the correct project folder.
+* Running Git inside `htdocs` uploads everything inside it.
+* Running Git inside `Demo` uploads only Demo project.
+* `.gitignore` prevents unwanted files from uploading.
+* `--force` overwrites GitHub repository contents.
+* Git does not upload empty folders unless they contain files.
